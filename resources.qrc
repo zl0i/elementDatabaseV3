@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>new_proj.png</file>
+        <file>new_table.png</file>
+        <file>delete.png</file>
+        <file>add.png</file>
+        <file>edit.png</file>
+        <file>remove.png</file>
+        <file>update.png</file>
+    </qresource>
+</RCC>
