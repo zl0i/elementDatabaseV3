@@ -1,4 +1,4 @@
-QT += quick sql quickcontrols2
+QT += quick sql quickcontrols2 network
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -14,7 +14,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
     workdatabase.cpp \
-    mysqltablemodel.cpp
+    mysqltablemodel.cpp \
+    webelement.cpp
 
 RESOURCES += qml.qrc \
     resources.qrc
@@ -32,6 +33,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     workdatabase.h \
-    mysqltablemodel.h
+    mysqltablemodel.h \
+    webelement.h
 
 DISTFILES +=

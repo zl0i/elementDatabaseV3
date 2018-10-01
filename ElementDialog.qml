@@ -80,8 +80,24 @@ Window {
                 anchors.verticalCenter: _txf3.verticalCenter
                 text: position ? "Авто" : "Вручную"
                 onClicked: {
-                    _txf3.text = _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text : ""
+                    if(new_or_edit === true) {
+                        _txf3.text = _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text : ""
+                    }
+                    else {
+                        //_txf3.text = _sw1.position ? dataList[5] : dataList[6]
+                        if(_sw1.position) {
+                            if(dataList[5].length === 0) _txf3.text = "https://www.chipdip.ru//product//" + _txf1.text
+                            else _txf3.text =dataList[5]
+                        }
+                        else {
+                            _txf3.text = dataList[6]
+                        }
+
+                    }
+
+                    _lbl5.text = _sw1.position ? "URL " : "Цена "
                 }
+
             }
         }
         Row {
@@ -130,9 +146,10 @@ Window {
         }
         else {
             dataList[5] = ''
-            dataList[6] = _txf3.text // цена
+            dataList[6] = _txf3.text + ' руб.'// цена
         }
         dataList[7] = '' //наличие
+        console.log(dataList)
     }
 
     function setDataList(list) {
@@ -147,7 +164,7 @@ Window {
         }
         else {
             if(_sw1.position) _sw1.toggle()
-            _txf3.text = list[6]
+            _txf3.text = list[6].slice(0, list[6].length - 5)
             _lbl5.text =  "Цена "
         }
 
@@ -157,7 +174,7 @@ Window {
         dataList[3] = list[3]
         dataList[4] = list[4]
         dataList[5] = list[5]
-        dataList[6] = list[6]
+        dataList[6] = list[6].slice(0, list[6].length - 5)
         dataList[7] = list[7]
     }
 

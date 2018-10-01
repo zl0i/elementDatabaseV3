@@ -8,5 +8,8 @@
         <file>TableElement.qml</file>
         <file>ElementDialog.qml</file>
         <file>ProjectDialog.qml</file>
+        <file>SelectComponent.qml</file>
+        <file>SettingDialog.qml</file>
+        <file>MyMessageDialog.qml</file>
     </qresource>
 </RCC>

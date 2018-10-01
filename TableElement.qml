@@ -33,7 +33,5 @@ TableView {
         clearColumn();
         addColumnsFromList(list_roles);
     }
-
-
 }
 

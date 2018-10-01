@@ -8,13 +8,15 @@ WorkDatabase::WorkDatabase(QObject *parent) : QObject(parent)
     QString path = qApp->applicationDirPath() + "\\Database.db";
     list_Roles << "id" << "name" << "count" << "location" << "availability";
     base.setDatabaseName(path);
+    //TableModel =
+    SelectElementTableModel = new MySQLTableModel(this);
+
     if(base.open()) {
         query = new QSqlQuery();
         query->exec("create table if not exists main (id  INTEGER PRIMARY KEY, "
                                                       "name CHAR(50) NOT NULL,"
                                                       "type CHAR(10) NOT NULL);");
         list_TableModel = new QStandardItemModel(2, 1, this);
-
         list_TableModel->setHorizontalHeaderItem(0, new QStandardItem("myName"));
         QModelIndex index = list_TableModel->index(0, 0);
         list_TableModel->setData(index, "Элементы");
@@ -23,6 +25,13 @@ WorkDatabase::WorkDatabase(QObject *parent) : QObject(parent)
         for(int i = 0;  query->next(); i++) {
            list_TableModel->insertRow(i, index);
            list_TableModel->setData(list_TableModel->index(i, 0, index), query->record().value(0).toString());
+           list_ElementTableModel.append(query->record().value(0).toString());
+        }
+
+        if(list_ElementTableModel.size() > 0) {
+            SelectElementTableModel->setTable(list_ElementTableModel.at(0));
+            SelectElementTableModel->select();
+            emit SelectElementTableModelChanged();
         }
 
         index = list_TableModel->index(1, 0);
@@ -34,14 +43,30 @@ WorkDatabase::WorkDatabase(QObject *parent) : QObject(parent)
             list_TableModel->setData(list_TableModel->index(i, 0, index), query->record().value(0).toString());
         }
     }
-    TableModel = new MySQLTableModel(this);
+    else {
+
+    }
+    myWebElement = new WebElement(this);
+    connect(myWebElement, SIGNAL(finishUpdate()), this, SIGNAL(finishUpdate()));
+    connect(myWebElement, SIGNAL(errorUpdate(QString)), this, SIGNAL(errorUpdate(QString)));
+    connect(myWebElement, SIGNAL(timeUpdate()), this, SLOT(myslot()));
+    connect(myWebElement, SIGNAL(timeUpdate()), this, SIGNAL(timeUpdate()));
+    myWebElement->ChekUpdateTime();
+}
+
+void WorkDatabase::myslot() {
+    qDebug() << "qwerty";
+}
+
+WorkDatabase::~WorkDatabase() {
+    //delete myWebElement;
 }
 
 
 void WorkDatabase::createTable(QString str) {
     if(str.isEmpty()) return;
     query->exec("create table if not exists\"" + str + "\" (id INTEGER PRIMARY KEY, "
-                                                  "name CHAR(50) NOT NULL, "                                                  
+                                                  "name CHAR(50) NOT NULL UNIQUE, "
                                                   "count INTEGER, "
                                                   "location CHAR(30) NOT NULL, "
                                                   "description CHAR(255), "
@@ -49,13 +74,15 @@ void WorkDatabase::createTable(QString str) {
                                                   "price CHAR, "
                                                   "availability CHAR);");
     query->exec("insert into main (name, type) values (\"" + str +  "\", \"element\");");
+    list_ElementTableModel.append(str);
+    emit list_ElementTableModelChanged();
     updatelist_TableModel();
 }
 
 void WorkDatabase::createProject(QString str) {
     if(str.isEmpty()) return;
     query->exec("create table if not exists \"" + str + "\" (id INTEGER PRIMARY KEY, "
-                                                  "name CHAR(50) NOT NULL,"
+                                                  "name CHAR(50) NOT NULL UNIQUE,"
                                                   "count INTEGER NOT NULL, "
                                                   "url CHAR(255), "
                                                   "total CHAR, "
@@ -97,6 +124,9 @@ void WorkDatabase::deleteTableOrProject(QModelIndex index) {
     query->exec("drop table \"" + str +"\";");
     query->exec("delete from main where name = \"" + str + "\";");
     updatelist_TableModel();
+    list_ElementTableModel.removeOne(str);
+     emit list_ElementTableModelChanged();
+
 }
 
 
@@ -117,7 +147,7 @@ void WorkDatabase::updateTableModel(QModelIndex index) {
     QString name = list_TableModel->data(index).toString();
     if(name == "Проекты" || name == "Элементы") return;
     TableModel->setTable(name);
-    TableModel->select();   
+    TableModel->select();
     emit TableModelChanged();
 }
 
@@ -127,12 +157,11 @@ QStringList WorkDatabase::getDataFromModel(uint row) {
         QModelIndex index = TableModel->index(row, i);
         list.append(TableModel->data(index, Qt::UserRole+i+1).toString());
     }
-
     return list;
 }
 
 bool WorkDatabase::addElement(QStringList list) {
-    if(TableModel->tableName() == 0) return false;
+    if(TableModel->tableName().size() == 0) return false;
     if(list.size() < 7) return false;
     QString str = "insert into \"" + TableModel->tableName() + "\" "
                   "(name, count, location, description, url, price, availability) values ("
@@ -148,7 +177,7 @@ bool WorkDatabase::addElement(QStringList list) {
 
 
 bool WorkDatabase::editElement(QStringList newList) {
-    if(TableModel->tableName() == 0) return false;
+    if(TableModel->tableName().size() == 0) return false;
     if(newList.size() < 7) return false;
     QString str = "update \"" + TableModel->tableName() + "\" set "
                   "name = \"" + newList.at(1) + "\", count = " + newList.at(2) + ", location = \"" + newList.at(3) + "\", "
@@ -162,7 +191,8 @@ bool WorkDatabase::editElement(QStringList newList) {
 }
 
 bool WorkDatabase::addProjectElement(QStringList list) {
-    if(TableModel->tableName() == 0) return false;
+    if(TableModel->tableName().size() == 0) return false;
+    qDebug() << list;
      if(list.size() < 5) return false;
      QString str = "insert into \"" + TableModel->tableName() + "\" "
                    "(name, count, url, total, availability) values ("
@@ -176,7 +206,7 @@ bool WorkDatabase::addProjectElement(QStringList list) {
 }
 
 bool WorkDatabase::editProjectElement(QStringList newList) {
-    if(TableModel->tableName() == 0) return false;
+    if(TableModel->tableName().size() == 0) return false;
     if(newList.size() < 5) return false;
     QString str = "update \"" + TableModel->tableName() + "\" set "
                   "name = \"" + newList.at(1) + "\", count = '" + newList.at(2) + "', "
@@ -189,7 +219,7 @@ bool WorkDatabase::editProjectElement(QStringList newList) {
     return true;
 }
 
-bool WorkDatabase::removeElemnt(uint row) {
+bool WorkDatabase::removeElement(uint row) {
     QModelIndex index = TableModel->index(row, 2);
     QString name = TableModel->data(index, Qt::UserRole+2).toString();
     if(!query->exec("delete from \"" + TableModel->tableName() + "\" where name = \"" + name + "\";")) {
@@ -200,9 +230,65 @@ bool WorkDatabase::removeElemnt(uint row) {
 
 }
 
-void WorkDatabase::updatePriceElement() {
+void WorkDatabase::updatePriceAndAvailability() {
+    QStringList list;
+
+    query->exec("select name from main where type = \"element\";");
+    for(int i = 0; query->next(); i++) {
+      list.append(query->record().value(0).toString());
+    }
+    myWebElement->SetListTableElement(list);
+
+    list.clear();
+
+    query->exec("select name from main where type = \"project\";");
+    for(int i = 0; query->next(); i++) {
+      list.append(query->record().value(0).toString());
+    }
+    myWebElement->SetListTableProject(list);
+
+    myWebElement->start();
+}
+
+void WorkDatabase::calculatePriceProject() {
+    total = myWebElement->CalculatePrice(TableModel->tableName());
+}
+
+void WorkDatabase::activateProject() {
 
 }
+
+void WorkDatabase::updateSelectedTableElementModel(int row) {
+    //qDebug() << index.row();
+    QString name = list_ElementTableModel.at(row);
+    qDebug() << name;
+    SelectElementTableModel->setTable(name);
+    SelectElementTableModel->select();
+    emit SelectElementTableModelChanged();
+}
+
+QString WorkDatabase::getName_SelectedTableElementModel(int row) {
+    QModelIndex index = SelectElementTableModel->index(row, 1);
+    return SelectElementTableModel->data(index, Qt::UserRole+2).toString();
+}
+
+uint WorkDatabase::getCount_SelectedTableElementModel(int row) {
+    QModelIndex index = SelectElementTableModel->index(row, 1);
+    return SelectElementTableModel->data(index, Qt::UserRole+3).toUInt();
+}
+
+uint WorkDatabase::getPrice_SelectedTableElementModel(int row) {
+    QModelIndex index = SelectElementTableModel->index(row, 1);
+    QString str = SelectElementTableModel->data(index, Qt::UserRole+7).toString();   
+    return str.mid(0, str.size()-5).toUInt();
+}
+
+uint WorkDatabase::getAvailability_SelectedTableElementModel(int row) {
+    QModelIndex index = SelectElementTableModel->index(row, 1);
+    QString str =  SelectElementTableModel->data(index, Qt::UserRole+8).toString();
+    return str.mid(0, str.size()-4).toUInt();
+}
+
 
 
 MySQLTableModel *WorkDatabase::getTableModel() {
@@ -225,3 +311,24 @@ void WorkDatabase::setlist_TableModel(QStandardItemModel  *model) {
 QStringList WorkDatabase::getlist_Roles() {
     return list_Roles;
 }
+
+uint WorkDatabase::getTotal() {
+    return total;
+}
+
+QStringList WorkDatabase::getlist_ElementTableModel() {
+    return list_ElementTableModel;
+}
+
+MySQLTableModel *WorkDatabase::getSelectElementTableModel() {
+    return SelectElementTableModel;
+}
+
+WebElement* WorkDatabase::getWebElement() {
+    return myWebElement;
+}
+
+void WorkDatabase::setWebElement(WebElement *p) {
+    myWebElement = p;
+}
+

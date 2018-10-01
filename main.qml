@@ -3,8 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Window 2.3
 import WorkDatabase 1.0
 import Qt.labs.platform 1.0
-//import Qt.labs.settings 1.0
-//import "myjs.js" as tjs
+
 
 ApplicationWindow  {
     visible: true
@@ -16,19 +15,33 @@ ApplicationWindow  {
     WorkDatabase {
         id: _mydatabase
     }
+
+
     MenuBar {
 
         Menu {
-            title: "File"
+            title: "Файл"
             MenuItem {
-                text: "Save"
+                text: "Открыть БД"
+            }
+            MenuItem {
+                text: "Сохранить БД"
+            }
+            MenuItem {
+                text: "Сохранить БД как.."
+            }
+        }
+        Menu {
+            title: "Настройки"
+
+            MenuItem {
+                text: "Настройки"
+                onTriggered: {
+                    _setting.show()
+                }
             }
         }
     }
-
-
-
-
     My {
         id: _mainForm
         anchors.fill: parent
@@ -41,4 +54,18 @@ ApplicationWindow  {
         }
     }
 
+    SettingDialog {
+        id:_setting        
+        shopList: _mydatabase.myWebElement.shop_list
+        townList: _mydatabase.myWebElement.town_list
+        periodUpdate: _mydatabase.myWebElement.periodUpdate
+        town: _mydatabase.myWebElement.currentTownIndex
+
+        onAcepted: {
+            _mydatabase.myWebElement.setPeriodUpdate(period)
+            _mydatabase.myWebElement.setShop(shop)
+            _mydatabase.myWebElement.setTown(town)
+            close();
+        }
+    }
 }

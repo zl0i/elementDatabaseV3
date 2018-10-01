@@ -7,5 +7,6 @@
         <file>edit.png</file>
         <file>remove.png</file>
         <file>update.png</file>
+        <file>activate.png</file>
     </qresource>
 </RCC>

@@ -14,10 +14,54 @@ MyForm {
         _deleteDialogTable.open() // remove table
     }
     button3.onClicked: {
-        _mydatabase.updatePriceElement()
+        button.enabled = false;
+        button1.enabled = false;
+        button2.enabled = false;
+        button3.enabled = false;
+        button4.enabled = false;
+        button5.enabled = false;
+        button6.enabled = false;
+        button7.enabled = false;
+        _mydatabase.updatePriceAndAvailability()
+
     }
+
+    Connections {
+           target: _mydatabase // Указываем целевое соединение
+
+           onFinishUpdate: {
+               button.enabled = true;
+               button1.enabled = true;
+               button2.enabled = true;
+               button3.enabled = true;
+               button4.enabled = true;
+               button5.enabled = true;
+               button6.enabled = true;
+               button7.enabled = true;
+
+               _mydatabase.updateTableModel(treeView.currentIndex);
+               if(treeView.currentIndex.parent.row !== 0) {
+                 _mydatabase.calculatePriceProject()
+                 label.text = "Стоимость всех компонентов = " + _mydatabase.total +" руб.";
+               }
+               _myMsg.title = "Сообщение"
+               _myMsg.text = "Обновление завершено"
+               _myMsg.show()
+           }
+           onErrorUpdate: {
+               _myMsg.title = "Ошибка"
+               _myMsg.text = "Не удалось обновить \n" + str
+               _myMsg.show()
+
+           }
+           onTimeUpdate: {
+               console.log("sss")
+           }
+
+    }
+
     button4.onClicked: {
-        //opendialog
+        //новый элемент
         if(treeView.currentIndex.parent.row === 0) {
             _elementDialog.new_or_edit = true;
             _elementDialog.clear()
@@ -30,7 +74,7 @@ MyForm {
         }
     }
     button5.onClicked: {
-        //opendialog with data
+        //редактирование элемента
          if(treeView.currentIndex.parent.row === 0) {
             _elementDialog.new_or_edit = false;
             _elementDialog.setDataList(_mydatabase.getDataFromModel(tableElement.currentRow));
@@ -43,20 +87,37 @@ MyForm {
          }
     }
     button6.onClicked: {
-        _deleteDialogElemnt.open()
+        //удаление элемента
+        _deleteDialogElemnt.show()
+    }
+    button7.onClicked: {
+
+        //activate project
+
     }
 
-
     treeView.onClicked: {
+        //выбор таблицы
         _mydatabase.updateListRoles(treeView.currentIndex);
         tableElement.newColumns(_mydatabase.list_Roles);
         _mydatabase.updateTableModel(treeView.currentIndex);
+        if(treeView.currentIndex.parent.row === 0) {
+           button7.visible = false;
+           label.visible = false;
+        }
+        else {
+            button7.visible = true;
+            label.visible = true;
+            _mydatabase.calculatePriceProject();
+            label.text = "Стоимость всех компонентов = " + _mydatabase.total +" руб.";
+        }
     }
     tableElement.onDoubleClicked: {
         //_mydatabase.editElement();
     }
 
     CreateDialog {
+        //создание новой таблицы элементов
         id: _dialog
         title: "Новая таблица элементов"
         button.onClicked: {
@@ -68,6 +129,7 @@ MyForm {
         }
     }
     CreateDialog {
+        //создание новой таблицы проетка
         id: _dialog2
         title: "Новый проект"
         button.onClicked: {
@@ -79,6 +141,7 @@ MyForm {
         }
     }
     MessageDialog {
+        //удаление таблицы
         id: _deleteDialogTable
         title: "Удаление"
         informativeText: "Вы действительно хотите удалить эту таблицу?"
@@ -88,6 +151,7 @@ MyForm {
     }
 
     ElementDialog {
+        //добавление нового элемента в таблицу элементов
         id: _elementDialog
         onAceptedd: {
             if(new_or_edit === true) {
@@ -116,11 +180,12 @@ MyForm {
         }
     }
     ProjectDialog {
+        //добавление нового элемента в таблицу проетка
         id: _projectDialog
         onAceptedd: {
             if(new_or_edit === true) {
                 if(_mydatabase.addProjectElement(_projectDialog.dataList) === false) {
-                    console.log("Элемент не добавленd в БД")
+                    console.log("Элемент не добавлен в БД")
                 }
                 else {
                     console.log("Элемент добавлен в БД")
@@ -144,18 +209,25 @@ MyForm {
         }
     }
 
-    MessageDialog {
+    MyMessageDialog {
+        //удаление элемента из таблицы
         id: _deleteDialogElemnt
         title: "Удаление"
-        informativeText: "Вы действительно хотите удалить этот элемент из списка?"
-        standardButtons: MessageDialog.Ok | MessageDialog.Cancel
+        height: 200
+        width: 300
+        maximumWidth: 300
+        text: "Вы действительно хотите удалить этот элемент из списка?"
+        buttonCansel: true
         onAccepted: {
-            _mydatabase.removeElemnt(tableElement.currentRow)
+            _mydatabase.removeElement(tableElement.currentRow)
             _mydatabase.updateTableModel(treeView.currentIndex);
             close()
         }
         onRejected: {
             close()
         }
+    }
+    MyMessageDialog {
+        id: _myMsg
     }
 }
