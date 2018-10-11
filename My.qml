@@ -4,14 +4,15 @@ import QtQuick.Dialogs 1.2
 
 
 MyForm {
+
     button.onClicked: { // add table element
-       _dialog.open()
+       _dialog.show()
     }
     button1.onClicked: { // add table element
-       _dialog2.open()
+       _dialog2.show()
     }
-    button2.onClicked: {
-        _deleteDialogTable.open() // remove table
+    button2.onClicked: {       
+        _deleteDialogTable.show() // remove table
     }
     button3.onClicked: {
         button.enabled = false;
@@ -23,9 +24,16 @@ MyForm {
         button6.enabled = false;
         button7.enabled = false;
         _mydatabase.updatePriceAndAvailability()
-
     }
 
+    Timer {
+        interval: 500
+        running: true
+        repeat: false
+        onTriggered: {
+            _mydatabase.chekUpdateTime()
+        }
+    }
     Connections {
            target: _mydatabase // Указываем целевое соединение
 
@@ -44,18 +52,27 @@ MyForm {
                  _mydatabase.calculatePriceProject()
                  label.text = "Стоимость всех компонентов = " + _mydatabase.total +" руб.";
                }
-               _myMsg.title = "Сообщение"
+               _myMsg.title = "Готово"
                _myMsg.text = "Обновление завершено"
                _myMsg.show()
            }
            onErrorUpdate: {
+               button.enabled = true;
+               button1.enabled = true;
+               button2.enabled = true;
+               button3.enabled = true;
+               button4.enabled = true;
+               button5.enabled = true;
+               button6.enabled = true;
+               button7.enabled = true;
+
                _myMsg.title = "Ошибка"
                _myMsg.text = "Не удалось обновить \n" + str
                _myMsg.show()
 
            }
-           onTimeUpdate: {
-               console.log("sss")
+           onTimeUpdate: {               
+               _updateDialog.show()
            }
 
     }
@@ -90,10 +107,17 @@ MyForm {
         //удаление элемента
         _deleteDialogElemnt.show()
     }
-    button7.onClicked: {
-
-        //activate project
-
+    button7.onClicked: {  //activate project
+        _mydatabase.activateProject()
+        button.enabled = false;
+        button1.enabled = false;
+        button2.enabled = false;
+        button3.enabled = false;
+        button4.enabled = false;
+        button5.enabled = false;
+        button6.enabled = false;
+        button7.enabled = false;
+        _mydatabase.updatePriceAndAvailability()
     }
 
     treeView.onClicked: {
@@ -113,7 +137,16 @@ MyForm {
         }
     }
     tableElement.onDoubleClicked: {
-        //_mydatabase.editElement();
+        if(treeView.currentIndex.parent.row === 0) {
+           _elementDialog.new_or_edit = false;
+           _elementDialog.setDataList(_mydatabase.getDataFromModel(tableElement.currentRow));
+           _elementDialog.show();
+        }
+        else {
+           _projectDialog.new_or_edit = false;
+           _projectDialog.setDataList(_mydatabase.getDataFromModel(tableElement.currentRow));
+           _projectDialog.show();
+        }
     }
 
     CreateDialog {
@@ -140,14 +173,21 @@ MyForm {
             close()
         }
     }
-    MessageDialog {
-        //удаление таблицы
+    MyMessageDialog  {      //удаление таблицы
         id: _deleteDialogTable
         title: "Удаление"
-        informativeText: "Вы действительно хотите удалить эту таблицу?"
-        standardButtons: MessageDialog.Ok | MessageDialog.Cancel
-        onAccepted: _mydatabase.deleteTableOrProject(treeView.currentIndex)
-        onRejected: close()
+        height: 200
+        width: 300
+        maximumWidth: 300
+        text: "Вы действительно хотите удалить эту таблицу?"
+        buttonCansel: true
+        onAccepted: {
+            _mydatabase.deleteTableOrProject(treeView.currentIndex)
+            close()
+        }
+        onRejected: {
+            close()
+        }
     }
 
     ElementDialog {
@@ -180,7 +220,7 @@ MyForm {
         }
     }
     ProjectDialog {
-        //добавление нового элемента в таблицу проетка
+        //добавление нового элемента в таблицу проекта
         id: _projectDialog
         onAceptedd: {
             if(new_or_edit === true) {
@@ -227,7 +267,34 @@ MyForm {
             close()
         }
     }
+    MyMessageDialog  {      //обновление цен и наличия
+            id: _updateDialog
+            title: "Внимане"
+            height: 200
+            width: 300
+            maximumWidth: 300
+            text: "Пора обновляться"
+            buttonCansel: true
+            buttonOKText: "Обновить"
+            buttonCanselText: "Отмена"
+            onAccepted: {
+                button.enabled = false;
+                button1.enabled = false;
+                button2.enabled = false;
+                button3.enabled = false;
+                button4.enabled = false;
+                button5.enabled = false;
+                button6.enabled = false;
+                button7.enabled = false;
+                _mydatabase.updatePriceAndAvailability()
+                close()
+            }
+            onRejected: {
+                close()
+            }
+        }
     MyMessageDialog {
         id: _myMsg
+        width: 300
     }
 }

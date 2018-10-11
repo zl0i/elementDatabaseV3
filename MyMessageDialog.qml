@@ -7,6 +7,8 @@ Window {
 
     property alias text: _tx1.text
     property alias buttonCansel: _buttonCansel.visible
+    property alias buttonOKText: _buttonOk.text
+    property alias buttonCanselText: _buttonCansel.text
     property alias title: _item.title
     signal accepted();
     signal rejected();
@@ -20,11 +22,11 @@ Window {
 
     title: ""
     height: 100
-    width: 200
+    width: 300
     minimumHeight: 100
-    minimumWidth: 200
+    minimumWidth: 300
     maximumHeight: 100
-    maximumWidth: 200
+    maximumWidth: 300
     modality: Qt.ApplicationModal
 
     Column {

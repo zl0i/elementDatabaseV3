@@ -19,6 +19,8 @@ Window {
     maximumWidth: 330
     modality: Qt.ApplicationModal
 
+
+
     Column {
         anchors.fill: parent
         anchors.leftMargin: 20
@@ -108,6 +110,7 @@ Window {
             TextField {
                 id: _txf4
                 width: 175
+                readOnly: true
             }
             Label {
                 id: _lbl5
@@ -125,6 +128,7 @@ Window {
             TextField {
                 id: _txf5
                 width: 175
+                readOnly: true
 
             }
             Label {
@@ -146,10 +150,12 @@ Window {
                 text: "Отмена"
                 onClicked: {
                     _item.rejectedd();
+
                 }
             }
         }
     }
+
     function clear() {
         _txf1.text = ""
         _txf2.text = ""
@@ -168,10 +174,19 @@ Window {
     }
 
     function setDataList(list) {
-
         _txf1.text = list[1]
-        _txf2.text = list[2].charAt(0)
-        _spb1.value = Number(list[2].charAt(2))
+        if(list[2].split("/").length === 2) {
+            _txf2.text = list[2].split("/")[0]
+            _spb1.value = Number(list[2].split("/")[1])
+            _spb1.enabled = true;
+        }
+        else {
+            _spb1.value = 0;
+            _spb1.enabled = false;
+            _txf2.text = list[2]
+        }
+
+
         _txf3.text = list[3]
         _txf4.text = list[4].slice(0, list[4].length - 5)  // цена
         _txf5.text = list[5].slice(0, list[5].length - 4)   // наличие
@@ -191,7 +206,7 @@ Window {
             _txf3.text = nameTable
             _txf1.text = nameElement
             _txf2.text = String(count)
-            _txf4.text = String(price * _spb1.value) //sssss
+            _txf4.text = String(price * _spb1.value)
             _txf5.text = String(availability)
 
             dataList[1] = _txf1.text

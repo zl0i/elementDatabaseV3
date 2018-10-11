@@ -1,5 +1,4 @@
 #include <QGuiApplication>
-//#include <QApplication>
 #include <QQmlApplicationEngine>
 #include "workdatabase.h"
 
@@ -11,7 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);    
 
     QGuiApplication app(argc, argv);
-    //QApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/icon/ElementDatabaseV3.png"));
     qmlRegisterType<WorkDatabase>("WorkDatabase", 1, 0, "WorkDatabase");
 
     QQmlApplicationEngine engine;

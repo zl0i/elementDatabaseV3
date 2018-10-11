@@ -26,14 +26,12 @@ WebElement::WebElement(QObject *parent) : QThread(parent)
 }
 
 void WebElement::ChekUpdateTime() {
-    uint LastTimeUpdate = setting.value("LastTime").toUInt();
+    uint LastTimeUpdate = setting.value("time").toUInt();
     periodUpdate = setting.value("PeriodUpdate").toUInt();
-
     if(QDateTime::currentSecsSinceEpoch() - LastTimeUpdate > periodUpdate) {
-       //emit timeUpdate();
+       emit timeUpdate();
     }
     periodUpdate = periodUpdate/86400;
-    emit timeUpdate();
 }
 
 void WebElement::SetListTableElement(QStringList list) {
@@ -83,6 +81,7 @@ void WebElement::run() {
         for(int j = 0; query->next(); j++) {
             QString url = query->value(2).toString();
             QStringList count = query->value(1).toString().split("/");
+            if(count.size() != 2) break;
             if(url.size() > 0) {                
                 write.exec("select count, price, availability from \"" + url + "\" "
                            "where name = '" + query->value(0).toString() + "';");
@@ -220,7 +219,6 @@ uint WebElement::CalculatePrice(QString name) {
         QString str = query->value(0).toString();
         total += str.mid(0, str.size()-5).toUInt();
     }
-    qDebug() << total;
     return total;
 }
 

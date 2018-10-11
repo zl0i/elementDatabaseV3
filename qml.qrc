@@ -4,7 +4,6 @@
         <file>My.qml</file>
         <file>MyForm.ui.qml</file>
         <file>CreateDialog.qml</file>
-        <file>CreateDialogForm.ui.qml</file>
         <file>TableElement.qml</file>
         <file>ElementDialog.qml</file>
         <file>ProjectDialog.qml</file>

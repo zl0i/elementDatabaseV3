@@ -64,6 +64,9 @@ Item {
                     height: 50
                     color: "black" //button.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Создание таблицы элментов")
 
                 /*Image {
                     id: image
@@ -100,6 +103,9 @@ Item {
                     height: 50
                     color: "black" // button1.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Создание таблицы проекта")
 
                 /*Image {
                     id: image1
@@ -140,6 +146,9 @@ Item {
                     anchors.fill: parent
                     source: "qrc:/icon/delete.png"
                 }*/
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Удаление таблицы")
             }
 
             Button {
@@ -159,6 +168,9 @@ Item {
                     height: 50
                     color: "black" //button3.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Обновление цен и наличия компонентов")
 
                 /*Image {
                     id: image3
@@ -178,11 +190,11 @@ Item {
 
     TreeView {
         id: treeView
-        width: parent.width/6
+        width: 108
         anchors.left: rectangle.right
         anchors.leftMargin: 0
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: -1
         anchors.top: parent.top
         anchors.topMargin: 0
         alternatingRowColors: false
@@ -197,11 +209,13 @@ Item {
 
     TableElement {
         id: tableElement
+        anchors.rightMargin: -1
+        anchors.topMargin: 0
         anchors.left: treeView.right
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.top: parent.top
-        anchors.leftMargin: 0
+        anchors.leftMargin: -1
         anchors.bottomMargin: 50
     }
 
@@ -211,7 +225,7 @@ Item {
         anchors.top: tableElement.bottom
         anchors.topMargin: 0
         anchors.left: treeView.right
-        anchors.leftMargin: 1
+        anchors.leftMargin: 0
         anchors.right: parent.right
         anchors.rightMargin: 0
         anchors.bottom: parent.bottom
@@ -239,6 +253,9 @@ Item {
                     height: 40
                     color: button6.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Удаление элемента")
 
                 /*Image {
                     id: image4
@@ -266,6 +283,9 @@ Item {
                     height: 40
                     color: button5.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Изменение элмента")
 
                 /*Image {
                     id: image5
@@ -293,6 +313,9 @@ Item {
                     height: 40
                     color: button4.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Добавление элемента в таблицу")
 
                 /*Image {
                     id: image6
@@ -322,6 +345,9 @@ Item {
                     height: 45
                     color: button7.enabled ? "black" : "gray"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: qsTr("Рассчитать проект")
 
                 /*Image {
                     id: image7

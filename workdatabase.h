@@ -11,6 +11,7 @@
 #include <QtQml>
 
 
+
 #include "webelement.h"
 
 class WorkDatabase : public QObject
@@ -79,8 +80,8 @@ public:
     Q_INVOKABLE bool removeElement(uint row);
 
 
-
-    Q_INVOKABLE void updatePriceAndAvailability();
+     Q_INVOKABLE void chekUpdateTime();
+     Q_INVOKABLE void updatePriceAndAvailability();
 
     Q_INVOKABLE void updateSelectedTableElementModel(int row);
     Q_INVOKABLE QString getName_SelectedTableElementModel(int row);
@@ -90,6 +91,8 @@ public:
 
     Q_INVOKABLE void calculatePriceProject();
     Q_INVOKABLE void activateProject();
+
+    Q_INVOKABLE void saveDtBs(QString path);
 
 
 signals:
@@ -107,7 +110,7 @@ signals:
 
 
 public slots:
-     void myslot();
+
 
 
 

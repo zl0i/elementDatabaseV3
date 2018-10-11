@@ -8,5 +8,7 @@
         <file>remove.png</file>
         <file>update.png</file>
         <file>activate.png</file>
+        <file>ElementDatabaseV3.png</file>
+        <file>ElementDatabaseV31.png</file>
     </qresource>
 </RCC>

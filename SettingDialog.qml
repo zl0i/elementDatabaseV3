@@ -16,6 +16,8 @@ Window {
     property alias periodUpdate: _spb1.value
     property alias town: _cmb2.currentIndex
 
+
+
     Column {
         anchors.fill: parent
         anchors.margins: 15

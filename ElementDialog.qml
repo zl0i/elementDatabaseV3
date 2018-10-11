@@ -4,7 +4,6 @@ import QtQuick.Window 2.3
 
 Window {
     id: _item
-
     property var dataList:[];
     property bool new_or_edit: true;
     signal aceptedd;
@@ -16,6 +15,13 @@ Window {
     minimumHeight: 350
     minimumWidth: 350
     modality: Qt.ApplicationModal
+    RegExpValidator {
+        id: _intreg
+        regExp: /[0-9]{1,5}/
+    }
+    RegExpValidator {
+        id: _urlreg
+    }
 
     Column {
         anchors.fill: parent
@@ -33,7 +39,7 @@ Window {
                 id: _txf1
                 width: 175
                 onTextChanged: {
-                    _txf3.text = _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text : _txf3.text
+                    _txf3.text = _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text.toLocaleLowerCase() : _txf3.text
                 }
             }
         }
@@ -73,7 +79,8 @@ Window {
             TextField {
                 id: _txf3
                 width: 175
-                text:  _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text : ""
+                validator: _sw1.position ? _urlreg : _intreg
+                text:  _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text.toLocaleLowerCase() : ""
             }
             Switch {
                 id: _sw1
@@ -81,16 +88,25 @@ Window {
                 text: position ? "Авто" : "Вручную"
                 onClicked: {
                     if(new_or_edit === true) {
-                        _txf3.text = _sw1.position ? "https://www.chipdip.ru//product//" + _txf1.text : ""
+                        if(_sw1.position) {
+                            _txf3.text = "https://www.chipdip.ru//product//" + _txf1.text.toLocaleLowerCase()
+                            _txf3.validator = _urlreg;
+                        }
+                        else {
+                             _txf3.text = ""
+                            _txf3.validator = _intreg
+                        }
                     }
                     else {
                         //_txf3.text = _sw1.position ? dataList[5] : dataList[6]
                         if(_sw1.position) {
-                            if(dataList[5].length === 0) _txf3.text = "https://www.chipdip.ru//product//" + _txf1.text
+                            _txf3.validator = _urlreg
+                            if(dataList[5].length === 0) _txf3.text = "https://www.chipdip.ru//product//" + _txf1.text.toLocaleLowerCase()
                             else _txf3.text =dataList[5]
                         }
                         else {
                             _txf3.text = dataList[6]
+                            _txf3.validator = _intreg
                         }
 
                     }
@@ -142,14 +158,19 @@ Window {
         dataList[4] = _txr1.text  //описание
         if(_sw1.position) {
             dataList[5] = _txf3.text  //url
-            dataList[6] = ''
+            if(dataList[6].length === 0) dataList[6] = ''
+            else dataList[6] += ' руб.'
         }
         else {
             dataList[5] = ''
             dataList[6] = _txf3.text + ' руб.'// цена
         }
-        dataList[7] = '' //наличие
-        console.log(dataList)
+        if(new_or_edit === true) dataList[7] = ''//наличие
+        else {
+            if(dataList[7].length !== 0) {
+                dataList[7] += ' шт.'
+            }
+        }
     }
 
     function setDataList(list) {
@@ -175,7 +196,8 @@ Window {
         dataList[4] = list[4]
         dataList[5] = list[5]
         dataList[6] = list[6].slice(0, list[6].length - 5)
-        dataList[7] = list[7]
+        dataList[7] = list[7].slice(0, list[7].length - 4)
+        console.log(dataList)
     }
 
     function clear() {

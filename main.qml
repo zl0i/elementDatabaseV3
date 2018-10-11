@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Window 2.3
 import WorkDatabase 1.0
 import Qt.labs.platform 1.0
+//import QtQuick.Dialogs 1.1
 
 
 ApplicationWindow  {
@@ -11,29 +12,40 @@ ApplicationWindow  {
     height: 480
     minimumHeight: 320
     minimumWidth: 420
-    title: qsTr("elementDtabase V3")
+    title: qsTr("ElementDatabase 3.0")
+
     WorkDatabase {
         id: _mydatabase
-    }
 
+    }
 
     MenuBar {
 
         Menu {
             title: "Файл"
-            MenuItem {
+            /*MenuItem {
                 text: "Открыть БД"
-            }
-            MenuItem {
-                text: "Сохранить БД"
-            }
+                onTriggered: {
+                    fileDialog.fileMode = FileDialog.OpenFile
+                    fileDialog.open()
+                }
+            }*/
             MenuItem {
                 text: "Сохранить БД как.."
+                onTriggered: {
+                    fileDialog.fileMode = FileDialog.SaveFile
+                    fileDialog.open()
+                }
+            }
+            MenuItem {
+                text: "Закрыть"
+                onTriggered: {
+                    Qt.quit()
+                }
             }
         }
         Menu {
             title: "Настройки"
-
             MenuItem {
                 text: "Настройки"
                 onTriggered: {
@@ -66,6 +78,27 @@ ApplicationWindow  {
             _mydatabase.myWebElement.setShop(shop)
             _mydatabase.myWebElement.setTown(town)
             close();
+        }
+    }
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        //selectExisting: true
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Database(*.db)"]
+        onAccepted: {
+            if(fileMode === FileDialog.SaveFile) {
+                console.log(fileDialog.file)
+                _mydatabase.saveDtBs(fileDialog.file)
+            }
+            else {
+                console.log("You Open chose: " + fileDialog.fileUrls)
+            }
+            close()
+        }
+        onRejected: {
+            close()
         }
     }
 }

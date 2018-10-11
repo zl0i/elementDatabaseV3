@@ -14,9 +14,10 @@ QVariant MySQLTableModel::data(const QModelIndex & index, int role) const {
 
     /* И с помощью уже метода data() базового класса
      * вытаскиваем данные для таблицы из модели
-     * */
+     * */ 
     return QSqlTableModel::data(modelIndex, Qt::DisplayRole);
 }
+
 
 QHash<int, QByteArray> MySQLTableModel::roleNames() const {
      //То есть сохраняем в хеш-таблицу названия ролей

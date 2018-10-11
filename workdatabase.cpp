@@ -4,11 +4,11 @@
 
 WorkDatabase::WorkDatabase(QObject *parent) : QObject(parent)
 {
+
     base = QSqlDatabase::addDatabase("QSQLITE");
     QString path = qApp->applicationDirPath() + "\\Database.db";
     list_Roles << "id" << "name" << "count" << "location" << "availability";
     base.setDatabaseName(path);
-    //TableModel =
     SelectElementTableModel = new MySQLTableModel(this);
 
     if(base.open()) {
@@ -46,16 +46,16 @@ WorkDatabase::WorkDatabase(QObject *parent) : QObject(parent)
     else {
 
     }
+    TableModel->setEditStrategy(QSqlTableModel::OnFieldChange);
     myWebElement = new WebElement(this);
     connect(myWebElement, SIGNAL(finishUpdate()), this, SIGNAL(finishUpdate()));
     connect(myWebElement, SIGNAL(errorUpdate(QString)), this, SIGNAL(errorUpdate(QString)));
-    connect(myWebElement, SIGNAL(timeUpdate()), this, SLOT(myslot()));
     connect(myWebElement, SIGNAL(timeUpdate()), this, SIGNAL(timeUpdate()));
-    myWebElement->ChekUpdateTime();
+    //myWebElement->ChekUpdateTime();
 }
 
-void WorkDatabase::myslot() {
-    qDebug() << "qwerty";
+void WorkDatabase::chekUpdateTime() {
+   myWebElement->ChekUpdateTime();
 }
 
 WorkDatabase::~WorkDatabase() {
@@ -134,7 +134,10 @@ void WorkDatabase::updateListRoles(QModelIndex index) {
     delete TableModel;
     TableModel = new MySQLTableModel(this);
     QString name = list_TableModel->data(index).toString();
-    if(name == "Проекты" || name == "Элементы") return;
+    if(name == "Проекты" || name == "Элементы") {
+        list_Roles.clear();
+        return;
+    }
     query->exec("select * from \"" + name + "\";");
     list_Roles.clear();
     for(int i = 0; i < query->record().count(); i++) {
@@ -255,7 +258,46 @@ void WorkDatabase::calculatePriceProject() {
 }
 
 void WorkDatabase::activateProject() {
+    for(int i = 0; i < TableModel->rowCount(); i++) { //проверка
+        QModelIndex index = TableModel->index(i, 1);
+        QString str = TableModel->data(index, Qt::UserRole+3).toString();
+        QStringList list = str.split("/");
+        if(list.size() == 2) {
+            if(list.at(1).toUInt() > list.at(0).toUInt()) return;
+        }
+        else  return;
 
+    }
+    for(int i = 0; i < TableModel->rowCount(); i++) { //занесение в таблицу
+        QModelIndex index = TableModel->index(i, 1);
+        QString nameElement = TableModel->data(index, Qt::UserRole+2).toString();
+        QString count = TableModel->data(index, Qt::UserRole+3).toString();
+        QString nameTable = TableModel->data(index, Qt::UserRole+4).toString();
+        QStringList list = count.split("/");
+        QString str1 = "update \"" + TableModel->tableName() + "\" set count = '"+ QString::number(list.at(1).toUInt()) + "' where name = '" + nameElement + "';";
+        //qDebug() << TableModel->setData(index, list.at(1), Qt::UserRole+3);
+        query->exec(str1);
+        qDebug() << query->lastError().text();
+        QString str2 = "update \"" + nameTable + "\" set count = '"+ QString::number(list.at(0).toUInt() - list.at(1).toUInt()) + "' where name = '" + nameElement + "';";
+        //qDebug() << str;
+        query->exec(str2);
+        qDebug() << query->lastError().text();
+    }
+    emit TableModelChanged();
+
+
+}
+
+void WorkDatabase::saveDtBs(QString path) {
+    if(path.right(3) != ".db") {
+        path += ".db";
+    }
+    QString oldpath = qApp->applicationDirPath() + "\\Database.db";
+    path = path.mid(8);
+
+    if(!QFile::copy(oldpath, path)) {
+       qDebug() << "ошибка сохранения" << oldpath;
+    }
 }
 
 void WorkDatabase::updateSelectedTableElementModel(int row) {
